@@ -23,7 +23,7 @@ class WikipediaParser implements ParserInterface
             return [];
         }
 
-        $crawler = new Crawler($this->content);
+        $crawler = new Crawler($this->content, null, 'https://de.wikipedia.org/');
 
         $crawler = $crawler->filter('.gallery .gallerybox');
 
@@ -33,16 +33,27 @@ class WikipediaParser implements ParserInterface
             try {
                 $number = $this->parseNumber($node);
                 $description = $this->parseDescription($node);
+                $imagePageUrl = $this->parseImageUrl($node);
 
                 if ($number && $description) {
-                    $signList[] = $this->createSign($number, $description);
+                    $signList[] = $this->createSign($number, $description, $imagePageUrl);
                 }
             } catch (\InvalidArgumentException $exception) {
-                return;
             }
         });
 
         return $signList;
+    }
+
+    protected function parseImageUrl(Crawler $crawler): ?string
+    {
+        $imageElement = $crawler->filter('.thumb a.image');
+
+        if (!$imageElement) {
+            return null;
+        }
+
+        return $imageElement->link()->getUri();
     }
 
     protected function parseNumber(Crawler $crawler): ?string
@@ -59,12 +70,13 @@ class WikipediaParser implements ParserInterface
         return WikipediaDescriptionParser::parse($description);
     }
 
-    protected function createSign(string $number, string $description): Sign
+    protected function createSign(string $number, string $description, string $imagePageUrl): Sign
     {
         $sign = new Sign();
         $sign
             ->setNumber($number)
-            ->setDescription($description);
+            ->setDescription($description)
+            ->setImagePageUrl($imagePageUrl);
 
         return $sign;
     }

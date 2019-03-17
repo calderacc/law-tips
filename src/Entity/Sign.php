@@ -26,6 +26,11 @@ class Sign
      */
     private $description;
 
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $imagePageUrl;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -51,6 +56,18 @@ class Sign
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getImagePageUrl(): ?string
+    {
+        return $this->imagePageUrl;
+    }
+
+    public function setImagePageUrl(?string $imagePageUrl): self
+    {
+        $this->imagePageUrl = $imagePageUrl;
 
         return $this;
     }
