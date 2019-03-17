@@ -31,16 +31,32 @@ class WikipediaParser implements ParserInterface
 
         $crawler->each(function(Crawler $node, int $i) use (&$signList) {
             try {
-                $number = $node->filter('b')->text();
-                $description = $node->filter('.gallerytext p b')->text();
+                $number = $this->parseNumber($node);
+                $description = $this->parseDescription($node);
+
+                if ($number && $description) {
+                    $signList[] = $this->createSign($number, $description);
+                }
             } catch (\InvalidArgumentException $exception) {
                 return;
             }
-
-            $signList[] = $this->createSign($number, $description);
         });
 
         return $signList;
+    }
+
+    protected function parseNumber(Crawler $crawler): ?string
+    {
+        $number = $crawler->filter('.gallerytext p b')->text();
+
+        return WikipediaNumberParser::parse($number);
+    }
+
+    protected function parseDescription(Crawler $crawler): ?string
+    {
+        $description = $crawler->filter('.gallerytext p')->text();
+
+        return WikipediaDescriptionParser::parse($description);
     }
 
     protected function createSign(string $number, string $description): Sign

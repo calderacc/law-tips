@@ -39,7 +39,7 @@ class Importer implements ImporterInterface
         }
 
         $this->entityManager->flush();
-        
+
         return $this;
     }
 
