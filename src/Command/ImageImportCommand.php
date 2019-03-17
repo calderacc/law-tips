@@ -10,6 +10,9 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImageImportCommand extends Command
 {
@@ -50,7 +53,18 @@ class ImageImportCommand extends Command
             $imageResponse = $client->get($imageUri);
             $imageContent = (string) $imageResponse->getBody();
 
+            $filename = sprintf('%s', uniqid());
+            $path = sprintf('/tmp/%s', $filename);
+
+            $filesystem = new Filesystem();
+            $filesystem->dumpFile($path, $imageContent);
+
+            $file = new UploadedFile($path, $filename, null, null, true);
+            $sign->setImageFile($file);
+
             $table->addRow([$sign->getNumber(), $sign->getDescription()]);
+
+            $this->registry->getManager()->flush();
 
             break;
         }
