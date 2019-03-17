@@ -3,21 +3,26 @@
 namespace App\Command;
 
 use App\Entity\Sign;
-use DOMElement;
-use GuzzleHttp\Client;
+use App\Vzkat\Importer\ImporterInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DomCrawler\Crawler;
-use Symfony\Component\DomCrawler\Link;
 
 class VzkatImportCommand extends Command
 {
+    /** @var string $defaultName */
     protected static $defaultName = 'vzkat:import';
+
+    /** @var ImporterInterface $importer */
+    protected $importer;
+
+    public function __construct($name = null, ImporterInterface $importer)
+    {
+        $this->importer = $importer;
+
+        parent::__construct($name);
+    }
 
     protected function configure()
     {
@@ -26,21 +31,7 @@ class VzkatImportCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /*
-        $io = new SymfonyStyle($input, $output);
-        $arg1 = $input->getArgument('arg1');
-
-        if ($arg1) {
-            $io->note(sprintf('You passed an argument: %s', $arg1));
-        }
-
-        if ($input->getOption('option1')) {
-            // ...
-        }
-
-        $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
-        */
-        $signList = $this->import();
+        $signList = $this->importer->import()->getSignList();
 
         $table = new Table($output);
         $table->setHeaders(['Number', 'Description']);
@@ -51,36 +42,5 @@ class VzkatImportCommand extends Command
         }
 
         $table->render();
-    }
-
-    protected function import(): array
-    {
-        $client = new Client();
-        $response = $client->get('https://de.wikipedia.org/wiki/Bildtafel_der_Verkehrszeichen_in_der_Bundesrepublik_Deutschland_seit_2017');
-
-        $crawler = new Crawler((string) $response->getBody());
-
-        $crawler = $crawler->filter('.gallery .gallerybox');
-
-        $signList = [];
-
-        $crawler->each(function(Crawler $node, int $i) use (&$signList) {
-            try {
-                $number = $node->filter('b')->text();
-                $description = $node->filter('.gallerytext p b')->text();
-
-            } catch (\InvalidArgumentException $exception) {
-                return;
-            }
-
-            $sign = new Sign();
-            $sign
-                ->setNumber($number)
-                ->setDescription($description);
-
-            $signList[] = $sign;
-        });
-
-        return $signList;
     }
 }
