@@ -6,7 +6,7 @@ class WikipediaNumberParser
 {
     public static function parse(string $number): ?string
     {
-        preg_match('/^(\d{3,4})((\-\d{1,2}\,\d{1,2})|([\.\-]?\d{0,4})([\-]?\d{0,3}))$/', $number, $matches);
+        preg_match('/^(?:Z(usatzz)?eichen )((\d{3,4})((\-\d{1,2}\,\d{1,2})|([\.\-]?\d{0,4})([\-]?\d{0,3})))$/', $number, $matches);
 
         if (array_key_exists(2, $matches)) {
             return $matches[2];
