@@ -6,12 +6,13 @@ use App\Entity\Sign;
 use GuzzleHttp\Client;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImageImportCommand extends Command
@@ -31,12 +32,18 @@ class ImageImportCommand extends Command
 
     protected function configure()
     {
-        $this->setDescription('Import sign files from Wikimedia Commons');
+        $this
+            ->setDescription('Import sign files from Wikimedia Commons')
+            ->addOption('overwrite', null, InputOption::VALUE_OPTIONAL, 'Overwrite old images', false)
+            ->addOption('limit', 'l', InputOption::VALUE_REQUIRED, 'Number of signs to renew', 25)
+            ->addOption('offset', 'o', InputOption::VALUE_REQUIRED, 'Number of signs to start', 0);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $signList = $this->registry->getRepository(Sign::class)->findAll();
+        $signList = $this->registry->getRepository(Sign::class)->findForImageImport($input->getOption('overwrite') !== null ? true : false, (int) $input->getOption('limit'), (int) $input->getOption('offset'));
+
+        $progressBar = new ProgressBar($output, count($signList));
 
         $table = new Table($output);
         $table->setHeaders(['Number', 'Image Url']);
@@ -62,13 +69,12 @@ class ImageImportCommand extends Command
             $file = new UploadedFile($path, $filename, null, null, true);
             $sign->setImageFile($file);
 
+            $progressBar->advance();
             $table->addRow([$sign->getNumber(), $sign->getDescription()]);
-
-            $this->registry->getManager()->flush();
-
-            break;
         }
 
+        $this->registry->getManager()->flush();
+        $progressBar->finish();
         $table->render();
     }
 }

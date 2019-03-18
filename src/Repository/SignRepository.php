@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Repository;
 
@@ -6,12 +6,6 @@ use App\Entity\Sign;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
-/**
- * @method Sign|null find($id, $lockMode = null, $lockVersion = null)
- * @method Sign|null findOneBy(array $criteria, array $orderBy = null)
- * @method Sign[]    findAll()
- * @method Sign[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- */
 class SignRepository extends ServiceEntityRepository
 {
     public function __construct(RegistryInterface $registry)
@@ -19,32 +13,18 @@ class SignRepository extends ServiceEntityRepository
         parent::__construct($registry, Sign::class);
     }
 
-    // /**
-    //  * @return Sign[] Returns an array of Sign objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findForImageImport(bool $emptyOnly = true, int $limit = 25, int $offset = 0): array
     {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $qb = $this->createQueryBuilder('s');
 
-    /*
-    public function findOneBySomeField($value): ?Sign
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        if ($emptyOnly) {
+            $qb->where($qb->expr()->isNull('s.imageName'));
+        }
+
+        $qb
+            ->setMaxResults($limit)
+            ->setFirstResult($offset);
+
+        return $qb->getQuery()->getResult();
     }
-    */
 }
