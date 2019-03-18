@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Entity\Sign;
+use App\Vzkat\ImageImporter\ImageImporterInterface;
 use GuzzleHttp\Client;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\Console\Command\Command;
@@ -11,9 +12,6 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DomCrawler\Crawler;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImageImportCommand extends Command
 {
@@ -23,9 +21,13 @@ class ImageImportCommand extends Command
     /** @var RegistryInterface $registry */
     protected $registry;
 
-    public function __construct($name = null, RegistryInterface $registry)
+    /** @var ImageImporterInterface $imageImporter */
+    protected $imageImporter;
+
+    public function __construct($name = null, RegistryInterface $registry, ImageImporterInterface $imageImporter)
     {
         $this->registry = $registry;
+        $this->imageImporter = $imageImporter;
 
         parent::__construct($name);
     }
@@ -50,24 +52,7 @@ class ImageImportCommand extends Command
 
         /** @var Sign $sign */
         foreach ($signList as $sign) {
-            $client = new Client();
-            $response = $client->get($sign->getImagePageUrl());
-
-            $crawler = new Crawler((string) $response->getBody(), null, 'https://commons.wikimedia.org/');
-            $linkElement = $crawler->filter('.fullMedia a')->first();
-            $imageUri = $linkElement->link()->getUri();
-
-            $imageResponse = $client->get($imageUri);
-            $imageContent = (string) $imageResponse->getBody();
-
-            $filename = sprintf('%s', uniqid());
-            $path = sprintf('/tmp/%s', $filename);
-
-            $filesystem = new Filesystem();
-            $filesystem->dumpFile($path, $imageContent);
-
-            $file = new UploadedFile($path, $filename, null, null, true);
-            $sign->setImageFile($file);
+            $sign = $this->imageImporter->importImageForSign($sign);
 
             $progressBar->advance();
             $table->addRow([$sign->getNumber(), $sign->getDescription()]);
