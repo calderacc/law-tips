@@ -24,7 +24,7 @@ class ImageImporter implements ImageImporterInterface
 
     protected function fakeUpload(Sign $sign, string $imageContent): Sign
     {
-        $filename = sprintf('%s', uniqid('', true));
+        $filename = sprintf('%s.svg', uniqid('', true));
         $path = sprintf('/tmp/%s', $filename);
 
         $filesystem = new Filesystem();
