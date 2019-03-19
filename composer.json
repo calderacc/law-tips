@@ -10,6 +10,7 @@
         "guzzlehttp/guzzle": "^6.3",
         "imagine/imagine": "^1.2",
         "sensio/framework-extra-bundle": "^5.1",
+        "symfony/apache-pack": "^1.0",
         "symfony/asset": "4.2.*",
         "symfony/console": "4.2.*",
         "symfony/css-selector": "4.2.*",
