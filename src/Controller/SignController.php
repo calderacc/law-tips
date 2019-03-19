@@ -12,13 +12,21 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
 class SignController extends AbstractController
 {
+    /** @var string $projectDir */
+    protected $projectDir;
+
+    public function __construct(string $projectDir)
+    {
+        $this->projectDir = $projectDir;
+    }
+
     /**
      * @Route("/sign/{sign_number}", name="sign")
      * @ParamConverter("sign", class="App:Sign", options={"mapping": {"sign_number": "number"}})
      */
     public function sign(Sign $sign): Response
     {
-        $filename = sprintf('/application/public/images/sign/%s', $sign->getImageName());
+        $filename = sprintf('%s/public/images/sign/%s', $this->projectDir, $sign->getImageName());
         $imagine = new Imagine();
 
         $imageContent = $imagine
