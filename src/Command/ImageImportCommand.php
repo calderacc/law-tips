@@ -14,14 +14,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ImageImportCommand extends Command
 {
-    /** @var string $defaultName */
     protected static $defaultName = 'vzkat:import-images';
 
-    /** @var RegistryInterface $registry */
-    protected $registry;
+    protected ManagerRegistry $registry;
 
-    /** @var ImageImporterInterface $imageImporter */
-    protected $imageImporter;
+    protected ImageImporterInterface $imageImporter;
 
     public function __construct($name = null, ManagerRegistry $registry, ImageImporterInterface $imageImporter)
     {
@@ -31,7 +28,7 @@ class ImageImportCommand extends Command
         parent::__construct($name);
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Import sign files from Wikimedia Commons')

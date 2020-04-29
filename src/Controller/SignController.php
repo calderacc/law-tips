@@ -17,8 +17,7 @@ class SignController extends AbstractController
     const DEFAULT_WIDTH = 25;
     const DEFAULT_HEIGHT= 25;
 
-    /** @var string $projectDir */
-    protected $projectDir;
+    protected string $projectDir;
 
     public function __construct(string $projectDir)
     {
