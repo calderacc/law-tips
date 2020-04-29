@@ -27,7 +27,7 @@ class VzkatImportCommand extends Command
         $this->setDescription('Import sign list from Wikipedia');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $signList = $this->importer->import()->getSignList();
 
@@ -40,5 +40,7 @@ class VzkatImportCommand extends Command
         }
 
         $table->render();
+
+        return 0;
     }
 }

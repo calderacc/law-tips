@@ -37,7 +37,7 @@ class ImageImportCommand extends Command
             ->addOption('offset', 'o', InputOption::VALUE_REQUIRED, 'Number of signs to start', 0);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $signList = $this->registry->getRepository(Sign::class)->findForImageImport($input->getOption('overwrite') !== null ? true : false, (int) $input->getOption('limit'), (int) $input->getOption('offset'));
 
@@ -57,5 +57,7 @@ class ImageImportCommand extends Command
         $this->registry->getManager()->flush();
         $progressBar->finish();
         $table->render();
+
+        return 0;
     }
 }
