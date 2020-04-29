@@ -4,8 +4,7 @@ namespace App\Command;
 
 use App\Entity\Sign;
 use App\Vzkat\ImageImporter\ImageImporterInterface;
-use GuzzleHttp\Client;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\Table;
@@ -24,7 +23,7 @@ class ImageImportCommand extends Command
     /** @var ImageImporterInterface $imageImporter */
     protected $imageImporter;
 
-    public function __construct($name = null, RegistryInterface $registry, ImageImporterInterface $imageImporter)
+    public function __construct($name = null, ManagerRegistry $registry, ImageImporterInterface $imageImporter)
     {
         $this->registry = $registry;
         $this->imageImporter = $imageImporter;
