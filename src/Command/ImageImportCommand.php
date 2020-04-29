@@ -4,8 +4,7 @@ namespace App\Command;
 
 use App\Entity\Sign;
 use App\Vzkat\ImageImporter\ImageImporterInterface;
-use GuzzleHttp\Client;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\Table;
@@ -15,16 +14,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ImageImportCommand extends Command
 {
-    /** @var string $defaultName */
     protected static $defaultName = 'vzkat:import-images';
 
-    /** @var RegistryInterface $registry */
-    protected $registry;
+    protected ManagerRegistry $registry;
 
-    /** @var ImageImporterInterface $imageImporter */
-    protected $imageImporter;
+    protected ImageImporterInterface $imageImporter;
 
-    public function __construct($name = null, RegistryInterface $registry, ImageImporterInterface $imageImporter)
+    public function __construct($name = null, ManagerRegistry $registry, ImageImporterInterface $imageImporter)
     {
         $this->registry = $registry;
         $this->imageImporter = $imageImporter;
@@ -32,7 +28,7 @@ class ImageImportCommand extends Command
         parent::__construct($name);
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Import sign files from Wikimedia Commons')
@@ -41,7 +37,7 @@ class ImageImportCommand extends Command
             ->addOption('offset', 'o', InputOption::VALUE_REQUIRED, 'Number of signs to start', 0);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $signList = $this->registry->getRepository(Sign::class)->findForImageImport($input->getOption('overwrite') !== null ? true : false, (int) $input->getOption('limit'), (int) $input->getOption('offset'));
 
@@ -61,5 +57,7 @@ class ImageImportCommand extends Command
         $this->registry->getManager()->flush();
         $progressBar->finish();
         $table->render();
+
+        return 0;
     }
 }

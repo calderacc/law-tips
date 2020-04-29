@@ -11,11 +11,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class VzkatImportCommand extends Command
 {
-    /** @var string $defaultName */
     protected static $defaultName = 'vzkat:import';
 
-    /** @var ImporterInterface $importer */
-    protected $importer;
+    protected ImporterInterface $importer;
 
     public function __construct($name = null, ImporterInterface $importer)
     {
@@ -24,12 +22,12 @@ class VzkatImportCommand extends Command
         parent::__construct($name);
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->setDescription('Import sign list from Wikipedia');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $signList = $this->importer->import()->getSignList();
 
@@ -42,5 +40,7 @@ class VzkatImportCommand extends Command
         }
 
         $table->render();
+
+        return 0;
     }
 }

@@ -17,50 +17,42 @@ class Sign
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=32)
      */
-    private $number;
+    private string $number;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $description;
+    private ?string $description = null;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $imagePageUrl;
+    private string $imagePageUrl;
 
     /**
      * @Vich\UploadableField(mapping="sign", fileNameProperty="imageName", size="imageSize")
-     *
-     * @var File
      */
-    private $imageFile;
+    private ?File $imageFile = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     *
-     * @var string
      */
-    private $imageName;
+    private ?string $imageName = null;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
-     *
-     * @var integer
      */
-    private $imageSize;
+    private ?int $imageSize = null;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     *
-     * @var \DateTime
      */
-    private $updatedAt;
+    private ?\DateTime $updatedAt = null;
 
     public function getId(): ?int
     {
@@ -111,7 +103,7 @@ class Sign
         $this->imageFile = $imageFile;
 
         if (null !== $imageFile) {
-            $this->updatedAt = new \DateTimeImmutable();
+            $this->updatedAt = new \DateTime();
         }
     }
 
